@@ -68,6 +68,10 @@ function writeEntryAtomic(line: string): void {
   writeFileSync(TMP_PATH, line, { encoding: "utf8", mode: 0o644 });
   chmodSync(TMP_PATH, 0o644);
   renameSync(TMP_PATH, OUT_PATH);
+  // The rename keeps the temp file's mode, but pin the final path's mode
+  // explicitly: a filesystem that drops the read bit on rename would
+  // otherwise fail the run as "<path> is not readable".
+  chmodSync(OUT_PATH, 0o644);
 
   // Read it back and prove the file on disk is exactly the sentence: a
   // write that silently truncated, re-encoded or padded the entry would
